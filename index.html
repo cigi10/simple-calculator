@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+
+  <style>
+    /* Variables */
+    :root {
+      --body-bg: #903535;
+      --black: #000;
+      --white: #fff;
+      --peach: #e87575;
+      --maroon: #6e1313;
+      --the-special-buttons: #430b0b;
+    }
+
+    /* Base */
+    *, *::after, *::before {
+      box-sizing: border-box;
+      margin: 50;
+      padding: 50;
+    }
+    a {
+      text-decoration: none;
+    }
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    /* Calculator */
+    .calculator {
+      background: linear-gradient(to top left, var(--peach), var(--maroon));
+      box-shadow: 0  0 0.15rem var(--black) inset;
+      margin: 0 auto;
+      max-width: 30rem;
+      padding: 3rem;
+      width: 100%;
+    }
+    .calculator-keys {
+      display: grid;
+      grid-gap: 0.25rem;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+    }
+    .calculator button {
+      border: none;
+      color: rgb(255, 255, 255);
+      font-size: 2.1rem;
+      font-weight: italic;
+    }
+    [data-math="add"], [data-operation="equals"] {
+      grid-row: span 2;
+    }
+    [data-number="0"] {
+      grid-column: span 2;
+    }
+    [data-number] {
+      background: transparent;
+      box-shadow: 0 0 0 0.05rem var(--white) inset;
+    }
+    [data-number="."], [data-math], [data-operation] {
+      background: var(--the-special-buttons);
+      box-shadow: none;
+    }
+    [data-operation="clear"] {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .calculator-screen {
+      background: rgba(53, 15, 15, 0.8);
+      border-radius: 0.25rem;
+      color: var(--white);
+      margin-bottom: 0.25rem;
+      padding: 1rem;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="calculator-screen" id="calculator-screen"></div>
+    <div class="calculator-keys" id="calculator-keys">
+      <button data-operation="clear">C</button>
+      <button data-math="divide">/</button>
+      <button data-math="multiply">*</button>
+      <button data-math="minus">-</button>
+      <button data-number="7">7</button>
+      <button data-number="8">8</button>
+      <button data-number="9">9</button>
+      <button data-math="add">+</button>
+      <button data-number="4">4</button>
+      <button data-number="5">5</button>
+      <button data-number="6">6</button>
+      <button data-number="1">1</button>
+      <button data-number="2">2</button>
+      <button data-number="3">3</button>
+      <button data-operation="equals">=</button>
+      <button data-number="0">0</button>
+      <button data-number=".">.</button>
+    </div>
+  </div>
+
+  <script>
+    const calculator = () => {
+      const doc = document,
+        screen = doc.getElementById('calculator-screen'),
+        keys = doc.getElementById('calculator-keys');
+      let operationStatus = false,
+        numa,
+        typeOperation;
+
+      screen.textContent = '0';
+
+      if (!keys) return;
+      keys.addEventListener('click', (e) => {
+        const t = e.target,
+          d = t.dataset;
+
+        if (d.number) {
+          writeScreen(d.number);
+        }
+
+        if (d.math) {
+          getOperation(t, d.math);
+        }
+
+        if (d.operation) {
+          runOperation(d.operation);
+        }
+      });
+      const writeScreen = (number) => {
+        screen.textContent === '0' || operationStatus === true
+          ? (screen.textContent = number)
+          : number === '.' && !screen.textContent.includes('.')
+          ? (screen.textContent += number)
+          : number !== '.'
+          ? (screen.textContent += number)
+          : null;
+        operationStatus = false;
+      };
+      const getOperation = (element, operation) => {
+        operationStatus = true;
+        numa = Number(screen.textContent);
+        typeOperation = operation;
+        screen.textContent = element.textContent;
+      };
+      const runOperation = (operation) => {
+        operation === 'clear'
+          ? (screen.textContent = '0')
+          : getResult(numa, typeOperation);
+        operationStatus = true;
+      };
+      const getResult = (numa, typeOperation) => {
+        const numb = Number(screen.textContent);
+        let result;
+        switch (typeOperation) {
+          case 'add':
+            result = numa + numb;
+            break;
+          case 'minus':
+            result = numa - numb;
+            break;
+          case 'multiply':
+            result = numa * numb;
+            break;
+          case 'divide':
+            result = numa / numb;
+            break;
+          default:
+            break;
+        }
+        result === Infinity
+          ? (screen.textContent = 'Error')
+          : (screen.textContent = result);
+      };
+    };
+
+    window.addEventListener('load', () => {
+      calculator();
+    });
+  </script>
+</body>
+</html>
